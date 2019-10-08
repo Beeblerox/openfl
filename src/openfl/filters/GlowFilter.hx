@@ -67,6 +67,7 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 @:access(openfl.geom.Rectangle)
 @:final class GlowFilter extends BitmapFilter
 {
+	@:noCompletion private static var __glowShader:GlowShader = new GlowShader();
 	@:noCompletion private static var __invertAlphaShader = new InvertAlphaShader();
 	@:noCompletion private static var __blurAlphaShader = new BlurAlphaShader();
 	@:noCompletion private static var __combineShader = new CombineShader();
@@ -142,12 +143,10 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 	@:noCompletion private var __blurX:Float;
 	@:noCompletion private var __blurY:Float;
 	@:noCompletion private var __color:Int;
-	@:noCompletion private var __horizontalPasses:Int;
 	@:noCompletion private var __inner:Bool;
 	@:noCompletion private var __knockout:Bool;
 	@:noCompletion private var __quality:Int;
 	@:noCompletion private var __strength:Float;
-	@:noCompletion private var __verticalPasses:Int;
 
 	#if openfljs
 	@:noCompletion private static function __init__()
@@ -220,17 +219,15 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 
 		__color = color;
 		__alpha = alpha;
-		__blurX = blurX;
-		__blurY = blurY;
+		this.blurX = blurX;
+		this.blurY = blurY;
 		__strength = strength;
+		this.quality = quality;
 		__inner = inner;
 		__knockout = knockout;
-		__quality = quality;
 
-		__updateSize();
-
-		__needSecondBitmapData = true;
-		__preserveObject = true;
+		__needSecondBitmapData = false;
+		__preserveObject = false;
 		__renderDirty = true;
 	}
 
@@ -249,20 +246,22 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 		var g = (__color >> 8) & 0xFF;
 		var b = __color & 0xFF;
 
-		if (__inner || __knockout)
-		{
-			sourceBitmapData.image.colorTransform(sourceBitmapData.image.rect, new ColorTransform(1, 1, 1, 0, 0, 0, 0, -255).__toLimeColorMatrix());
-			sourceBitmapData.image.dirty = true;
-			sourceBitmapData.image.version++;
-			bitmapData = sourceBitmapData.clone();
-			return bitmapData;
-		}
+		var original = new BitmapData(bitmapData.width, bitmapData.height, true, 0x0);
+		original.copyPixels(sourceBitmapData, sourceRect, destPoint);
 
 		var finalImage = ImageDataUtil.gaussianBlur(bitmapData.image, sourceBitmapData.image, sourceRect.__toLimeRectangle(), destPoint.__toLimeVector2(),
 			__blurX, __blurY, __quality, __strength);
-		finalImage.colorTransform(finalImage.rect, new ColorTransform(0, 0, 0, __alpha, r, g, b, 0).__toLimeColorMatrix());
 
-		if (finalImage == bitmapData.image) return bitmapData;
+		var alphaMultiplier = __alpha * __strength;
+		if (alphaMultiplier > 4) alphaMultiplier = 4;
+		finalImage.colorTransform(finalImage.rect, new ColorTransform(0, 0, 0, alphaMultiplier, r, g, b, 0).__toLimeColorMatrix());
+
+		if (finalImage == bitmapData.image) 
+		{
+			bitmapData.draw(original, null, null);
+			original.dispose();
+			return bitmapData;
+		}
 		#end
 		return sourceBitmapData;
 	}
@@ -270,83 +269,18 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 	@:noCompletion private override function __initShader(renderer:DisplayObjectRenderer, pass:Int, sourceBitmapData:BitmapData):Shader
 	{
 		#if !macro
-		// First pass of inner glow is invert alpha
-		if (__inner && pass == 0)
-		{
-			return __invertAlphaShader;
-		}
-
-		var blurPass = pass - (__inner ? 1 : 0);
-		var numBlurPasses = __horizontalPasses + __verticalPasses;
-
-		if (blurPass < numBlurPasses)
-		{
-			var shader = __blurAlphaShader;
-			if (blurPass < __horizontalPasses)
-			{
-				var scale = Math.pow(0.5, blurPass >> 1);
-				shader.uRadius.value[0] = blurX * scale;
-				shader.uRadius.value[1] = 0;
-			}
-			else
-			{
-				var scale = Math.pow(0.5, (blurPass - __horizontalPasses) >> 1);
-				shader.uRadius.value[0] = 0;
-				shader.uRadius.value[1] = blurY * scale;
-			}
-			shader.uColor.value[0] = ((color >> 16) & 0xFF) / 255;
-			shader.uColor.value[1] = ((color >> 8) & 0xFF) / 255;
-			shader.uColor.value[2] = (color & 0xFF) / 255;
-			shader.uColor.value[3] = alpha;
-			return shader;
-		}
-		if (__inner)
-		{
-			if (__knockout)
-			{
-				var shader = __innerCombineKnockoutShader;
-				shader.sourceBitmap.input = sourceBitmapData;
-				shader.strength.value[0] = __strength;
-				return shader;
-			}
-			var shader = __innerCombineShader;
-			shader.sourceBitmap.input = sourceBitmapData;
-			shader.strength.value[0] = __strength;
-			return shader;
-		}
-		else
-		{
-			if (__knockout)
-			{
-				var shader = __combineKnockoutShader;
-				shader.sourceBitmap.input = sourceBitmapData;
-				shader.strength.value[0] = __strength;
-				return shader;
-			}
-			var shader = __combineShader;
-			shader.sourceBitmap.input = sourceBitmapData;
-			shader.strength.value[0] = __strength;
-			return shader;
-		}
+		__glowShader.quality.value = [quality / 255.0];
+		__glowShader.distance.value = [Math.max(blurX, 0.001)];
+		__glowShader.outerStrength.value = [(inner) ? 0.0 : strength];
+		__glowShader.innerStrength.value = [(inner) ? strength: 0.0];
+		__glowShader.glowColor.value[0] = ((color >> 16) & 0xFF) / 255;
+		__glowShader.glowColor.value[1] = ((color >> 8) & 0xFF) / 255;
+		__glowShader.glowColor.value[2] = (color & 0xFF) / 255;
+		__glowShader.glowColor.value[3] = Math.max(alpha * (__strength / __numShaderPasses), 1.0);
+		return __glowShader;
 		#else
 		return null;
 		#end
-	}
-
-	@:noCompletion private function __updateSize():Void
-	{
-		__leftExtension = (__blurX > 0 ? Math.ceil(__blurX * 1.5) : 0);
-		__rightExtension = __leftExtension;
-		__topExtension = (__blurY > 0 ? Math.ceil(__blurY * 1.5) : 0);
-		__bottomExtension = __topExtension;
-		__calculateNumShaderPasses();
-	}
-
-	@:noCompletion private function __calculateNumShaderPasses():Void
-	{
-		__horizontalPasses = (__blurX <= 0) ? 0 : Math.round(__blurX * (__quality / 4)) + 1;
-		__verticalPasses = (__blurY <= 0) ? 0 : Math.round(__blurY * (__quality / 4)) + 1;
-		__numShaderPasses = __horizontalPasses + __verticalPasses + (__inner ? 2 : 1);
 	}
 
 	// Get & Set Methods
@@ -372,7 +306,8 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 		{
 			__blurX = value;
 			__renderDirty = true;
-			__updateSize();
+			__leftExtension = (value > 0 ? Math.ceil(value * 2.0) : 0);
+			__rightExtension = __leftExtension;
 		}
 		return value;
 	}
@@ -388,7 +323,8 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 		{
 			__blurY = value;
 			__renderDirty = true;
-			__updateSize();
+			__topExtension = (value > 0 ? Math.ceil(value * 2.0) : 0);
+			__bottomExtension = __topExtension;
 		}
 		return value;
 	}
@@ -411,11 +347,7 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 
 	@:noCompletion private function set_inner(value:Bool):Bool
 	{
-		if (value != __inner)
-		{
-			__renderDirty = true;
-			__calculateNumShaderPasses();
-		}
+		if (value != __inner) __renderDirty = true;
 		return __inner = value;
 	}
 
@@ -426,11 +358,7 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 
 	@:noCompletion private function set_knockout(value:Bool):Bool
 	{
-		if (value != __knockout)
-		{
-			__renderDirty = true;
-			__calculateNumShaderPasses();
-		}
+		if (value != __knockout) __renderDirty = true;
 		return __knockout = value;
 	}
 
@@ -441,11 +369,9 @@ import lime._internal.graphics.ImageDataUtil; // TODO
 
 	@:noCompletion private function set_quality(value:Int):Int
 	{
-		if (value != __quality)
-		{
-			__renderDirty = true;
-			__calculateNumShaderPasses();
-		}
+		__numShaderPasses = 1;
+
+		if (value != __quality) __renderDirty = true;
 		return __quality = value;
 	}
 
@@ -724,6 +650,97 @@ private class InnerCombineKnockoutShader extends BitmapFilterShader
 		#if !macro
 		offset.value = [0, 0];
 		strength.value = [1];
+		#end
+	}
+}
+
+#if !openfl_debug
+@:fileXml('tags="haxe,release"')
+@:noDebug
+#end
+private class GlowShader extends BitmapFilterShader
+{
+	@:glFragmentSource("
+		varying vec2 vTextureCoord;
+		varying vec4 vColor;
+
+		uniform sampler2D openfl_Texture;
+		uniform vec2 openfl_TextureSize;
+
+		uniform float quality;
+		uniform float distance;
+		uniform float outerStrength;
+		uniform float innerStrength;
+		uniform vec4 glowColor;
+		const float PI = 3.14159265358979323846264;
+
+		void main(void) {
+			float dispScale = distance / 10.0;
+			vec2 px = vec2(dispScale / openfl_TextureSize.x, dispScale / openfl_TextureSize.y);
+			vec4 ownColor = texture2D(openfl_Texture, vTextureCoord);
+			vec4 curColor;
+			float totalAlpha = 0.0;
+			float maxTotalAlpha = 0.0;
+			float cosAngle;
+			float sinAngle;
+			//float qualityDist = 1.0 / quality / distance;
+			vec2 displaced;
+			
+			for (float angle = 0.0; angle <= PI * 2.0; angle += 0.1) {
+				cosAngle = cos(angle);
+				sinAngle = sin(angle);
+				for (float curDistance = 1.0; curDistance <= 10.0; curDistance++) {
+					displaced.x = vTextureCoord.x + cosAngle * curDistance * px.x;
+					displaced.y = vTextureCoord.y + sinAngle * curDistance * px.y;
+					curColor = texture2D(openfl_Texture, clamp(displaced, vec2(0,0), openfl_TextureSize));
+					totalAlpha += (10.0  - curDistance) * curColor.a;
+					maxTotalAlpha += (10.0 - curDistance);
+				}
+			}
+			maxTotalAlpha = max(maxTotalAlpha, 0.0001);
+
+			ownColor.a = max(ownColor.a, 0.0001);
+			ownColor.rgb = ownColor.rgb / ownColor.a;
+			
+			float outerGlowAlpha = outerStrength * (totalAlpha / maxTotalAlpha) * (1. - ownColor.a);
+			float innerGlowAlpha = ((maxTotalAlpha - totalAlpha) / maxTotalAlpha) * innerStrength * ownColor.a;
+			float resultAlpha = (ownColor.a + outerGlowAlpha);
+			float innerMix = innerGlowAlpha / ownColor.a;
+			float outerMix = outerGlowAlpha / resultAlpha;
+
+			vec3 innerGlowRGB = mix(ownColor.rgb, glowColor.rgb, innerMix);
+			vec3 outerGlowRGB = mix(innerGlowRGB, glowColor.rgb, outerMix);
+
+			gl_FragColor = vec4(outerGlowRGB * resultAlpha, resultAlpha);
+			//gl_FragColor = vec4(mix(mix(ownColor.rgb, glowColor.rgb, innerGlowAlpha / ownColor.a), glowColor.rgb, outerGlowAlpha / resultAlpha) * resultAlpha, resultAlpha);
+		}
+	")
+
+	@:glVertexSource("
+		attribute vec4 openfl_Position;
+		attribute vec2 openfl_TextureCoord;
+		
+		uniform mat4 openfl_Matrix;
+
+		varying vec2 vTextureCoord;
+
+		void main(void)
+		{
+			gl_Position = openfl_Matrix * openfl_Position;
+			vTextureCoord = openfl_TextureCoord;
+		}
+	")
+
+	public function new()
+	{
+		super();
+
+		#if !macro
+		quality.value = [1.0];
+		distance.value = [6.0];
+		outerStrength.value = [2.0];
+		innerStrength.value = [0.0];
+		glowColor.value = [0,0,0,0];
 		#end
 	}
 }
