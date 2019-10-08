@@ -823,6 +823,7 @@ class Context3DGraphics
 			}
 
 			graphics.__hardwareDirty = false;
+			graphics.__softwareDirty = false;
 			graphics.__dirty = false;
 		}
 	}
