@@ -23,6 +23,12 @@ import js.html.CanvasRenderingContext2D;
 import js.Browser;
 #end
 
+typedef StrokeDef = {
+	var offsetX:Float;
+	var offsetY:Float;
+	var color:Int;
+}
+
 #if !openfl_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
@@ -80,6 +86,14 @@ class TextEngine
 	public var type:TextFieldType;
 	public var width:Float;
 	public var wordWrap:Bool;
+	
+	public var strokes:Array<StrokeDef> = [];
+
+	public var shadow:Bool = false;
+	public var shadowColor:Int = 0;
+    public var shadowOffsetX:Int = 0;
+    public var shadowOffsetY:Int = 0;
+    public var shadowBlur:Float = 0;
 
 	private var textField:TextField;
 	@:noCompletion private var __cursorTimer:Timer;

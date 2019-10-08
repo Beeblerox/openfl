@@ -165,13 +165,25 @@ class CanvasTextField
 						context.font = TextEngine.getFont(group.format);
 						context.fillStyle = color;
 
-						context.fillText(text.substring(group.startIndex, group.endIndex), group.offsetX
-							+ scrollX
-							- bounds.x,
-							group.offsetY
-							+ group.ascent
-							+ scrollY
-							- bounds.y);
+						var textX = group.offsetX + scrollX - bounds.x;
+						var textY = group.offsetY + group.ascent + scrollY - bounds.y;
+						var textValue = text.substring(group.startIndex, group.endIndex);
+
+						if (textEngine.shadow)
+						{
+							context.shadowColor = "#" + StringTools.hex(textEngine.shadowColor & 0xFFFFFF, 6);
+						    context.shadowOffsetX = textEngine.shadowOffsetX;
+							context.shadowOffsetY = textEngine.shadowOffsetY;
+							context.shadowBlur = textEngine.shadowBlur;
+						}
+
+						for (stroke in textEngine.strokes)
+						{
+							context.strokeStyle = "#" + StringTools.hex(stroke.color & 0xFFFFFF, 6);
+						    context.strokeText(textValue, textX + stroke.offsetX, textY + stroke.offsetY);
+						}
+
+						context.fillText(textValue, textX, textY);
 
 						if (textField.__caretIndex > -1 && textEngine.selectable)
 						{

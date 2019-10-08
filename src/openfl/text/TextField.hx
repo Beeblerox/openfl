@@ -20,6 +20,7 @@ import openfl.events.FocusEvent;
 import openfl.events.KeyboardEvent;
 import openfl.events.MouseEvent;
 import openfl.events.TextEvent;
+import openfl.filters.BitmapFilter;
 import openfl.geom.Matrix;
 import openfl.geom.Rectangle;
 import openfl.net.URLRequest;
@@ -119,6 +120,7 @@ import js.html.DivElement;
 @:noDebug
 #end
 @:access(openfl.display.Graphics)
+@:access(openfl.filters.BitmapFilter)
 @:access(openfl.geom.ColorTransform)
 @:access(openfl.geom.Matrix)
 @:access(openfl.geom.Rectangle)
@@ -2437,6 +2439,14 @@ class TextField extends InteractiveObject
 		}
 		#end
 
+		if (__filters != null)
+		{
+			for (filter in __filters)
+			{
+				filter.__renderDirty = true;
+			}
+		}
+
 		// applies maxChars and restrict on text
 
 		__textEngine.text = value;
@@ -3481,6 +3491,33 @@ class TextField extends InteractiveObject
 		}
 	}
 	#end
+
+	override private function set_filters(value:Array<BitmapFilter>):Array<BitmapFilter>
+    {
+        for (filter in value)
+        {
+            if (Std.is(filter, openfl.filters.GlowFilter)) 
+            {
+                var gf:openfl.filters.GlowFilter = cast filter;
+
+				__textEngine.strokes = [];
+				__textEngine.strokes.push({offsetX:0, offsetY:0, color:gf.color});
+
+				var additionalStrokes = Math.floor(gf.strength / 20);
+				for (i in -additionalStrokes...additionalStrokes) {
+					for (j in -additionalStrokes...additionalStrokes) {
+						if ((i == 0) && (j == 0)) continue;
+						__textEngine.strokes.push({offsetX:i, offsetY:j, color:gf.color});
+					}
+				}
+				__textEngine.shadow = true;
+				__textEngine.shadowColor = gf.color;
+				__textEngine.shadowBlur = gf.blurX;
+            }
+        }
+
+        return this.filters;
+    }
 
 	@:noCompletion private function window_onTextInput(value:String):Void
 	{
