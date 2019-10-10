@@ -783,7 +783,8 @@ class DisplayObjectContainer extends InteractiveObject
 	@:noCompletion private override function __hitTest(x:Float, y:Float, shapeFlag:Bool, stack:Array<DisplayObject>, interactiveOnly:Bool,
 			hitObject:DisplayObject):Bool
 	{
-		if (!hitObject.visible || __isMask || (interactiveOnly && !mouseEnabled && !mouseChildren)) return false;
+		//if (!hitObject.visible || __isMask || (interactiveOnly && !mouseEnabled && !mouseChildren)) return false;
+		if (!hitObject.visible || __isMask) return false;
 		if (mask != null && !mask.__hitTestMask(x, y)) return false;
 
 		if (__scrollRect != null)

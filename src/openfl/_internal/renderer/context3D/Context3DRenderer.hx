@@ -961,8 +961,10 @@ class Context3DRenderer extends Context3DRendererAPI
 
 			var cacheMask = object.__mask;
 			var cacheScrollRect = object.__scrollRect;
+			// TODO (Zaphod): comment it out???
 			object.__mask = null;
 			object.__scrollRect = null;
+			// TODO (Zaphod): end of todo
 
 			if (object != null)
 			{
@@ -1509,6 +1511,13 @@ class Context3DRenderer extends Context3DRendererAPI
 			{
 				needRender = true;
 			}
+
+			// TODO (Zaphod): uncomment it???
+			/*if (!needRender && object.__worldAlphaChanged)
+			{
+				needRender = true;
+			}*/
+			// TODO (Zaphod): end of todo
 
 			if (hasFilters && !needRender)
 			{
