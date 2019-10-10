@@ -1644,6 +1644,7 @@ class BitmapData implements IBitmapDrawable
 		return __indexBuffer;
 	}
 
+	#if lime
 	@:dox(hide) public function pushQuadsToBatcher(batcher:BatchRenderer, transform:Matrix, object:DisplayObject):Void
 	{
 		var blendMode = object.__worldBlendMode;
@@ -1785,6 +1786,7 @@ class BitmapData implements IBitmapDrawable
 			batcher.pushQuad(this, blendMode, alpha, colorTransform);
 		}
 	}
+	#end
 
 	/**
 		**BETA**

@@ -428,6 +428,7 @@ private class BlurAlphaShader extends BitmapFilterShader
 	@:glFragmentSource("
 		uniform sampler2D openfl_Texture;
 		uniform vec4 uColor;
+		uniform float uStrength;
 		varying vec2 vTexCoord;
 		varying vec2 vBlurCoords[6];
 
@@ -451,7 +452,7 @@ private class BlurAlphaShader extends BitmapFilterShader
 			a += dot(top, contributions.xyz);
             a += dot(bottom, contributions.zyx);
 
-			gl_FragColor = uColor * a;
+			gl_FragColor = uColor * clamp(a * uStrength, 0.0, 1.0);
 		}
 	")
 	@:glVertexSource("
@@ -470,7 +471,7 @@ private class BlurAlphaShader extends BitmapFilterShader
 			gl_Position = openfl_Matrix * openfl_Position;
 			vTexCoord = openfl_TextureCoord;
 
-			vec3 offset = vec3(0.33, 0.66, 1.0);
+			vec3 offset = vec3(0.5, 0.75, 1.0);
 			vec2 r = uRadius / openfl_TextureSize;
 			vBlurCoords[0] = openfl_TextureCoord - r * offset.z;
 			vBlurCoords[1] = openfl_TextureCoord - r * offset.y;
@@ -486,6 +487,7 @@ private class BlurAlphaShader extends BitmapFilterShader
 		#if !macro
 		uRadius.value = [0, 0];
 		uColor.value = [0, 0, 0, 0];
+		uStrength.value = [1];
 		#end
 	}
 }
@@ -499,14 +501,13 @@ private class CombineShader extends BitmapFilterShader
 	@:glFragmentSource("
 		uniform sampler2D openfl_Texture;
 		uniform sampler2D sourceBitmap;
-		uniform float strength;
 		varying vec4 textureCoords;
 
 		void main(void) {
 			vec4 src = texture2D(sourceBitmap, textureCoords.xy);
-			vec4 glow = texture2D(openfl_Texture, textureCoords.zw) * strength;
+			vec4 glow = texture2D(openfl_Texture, textureCoords.zw);
 
-			gl_FragColor = src * src.a + glow * (1.0 - src.a);
+			gl_FragColor = src + glow * (1.0 - src.a);
 		}
 	")
 	@:glVertexSource("attribute vec4 openfl_Position;
@@ -525,7 +526,6 @@ private class CombineShader extends BitmapFilterShader
 	{
 		super();
 		#if !macro
-		strength.value = [1];
 		offset.value = [0, 0];
 		#end
 	}
@@ -540,14 +540,13 @@ private class InnerCombineShader extends BitmapFilterShader
 	@:glFragmentSource("
 		uniform sampler2D openfl_Texture;
 		uniform sampler2D sourceBitmap;
-		uniform float strength;
 		varying vec4 textureCoords;
 
 		void main(void) {
 			vec4 src = texture2D(sourceBitmap, textureCoords.xy);
-			vec4 glow = texture2D(openfl_Texture, textureCoords.zw) * strength;
+			vec4 glow = texture2D(openfl_Texture, textureCoords.zw);
 
- 			gl_FragColor = vec4(mix(src.rgb, glow.rgb, glow.a), src.a);
+			gl_FragColor = vec4((src.rgb * (1.0 - glow.a)) + (glow.rgb * src.a), src.a);
 		}
 	")
 	@:glVertexSource("attribute vec4 openfl_Position;
@@ -566,7 +565,6 @@ private class InnerCombineShader extends BitmapFilterShader
 	{
 		super();
 		#if !macro
-		strength.value = [1];
 		offset.value = [0, 0];
 		#end
 	}
@@ -581,12 +579,11 @@ private class CombineKnockoutShader extends BitmapFilterShader
 	@:glFragmentSource("
 		uniform sampler2D openfl_Texture;
 		uniform sampler2D sourceBitmap;
-		uniform float strength;
 		varying vec4 textureCoords;
 
 		void main(void) {
 			vec4 src = texture2D(sourceBitmap, textureCoords.xy);
-			vec4 glow = texture2D(openfl_Texture, textureCoords.zw) * strength;
+			vec4 glow = texture2D(openfl_Texture, textureCoords.zw);
 
 			gl_FragColor = glow * (1.0 - src.a);
 		}
@@ -607,7 +604,6 @@ private class CombineKnockoutShader extends BitmapFilterShader
 	{
 		super();
 		#if !macro
-		strength.value = [1];
 		offset.value = [0, 0];
 		#end
 	}
@@ -622,12 +618,11 @@ private class InnerCombineKnockoutShader extends BitmapFilterShader
 	@:glFragmentSource("
 		uniform sampler2D openfl_Texture;
 		uniform sampler2D sourceBitmap;
-		uniform float strength;
 		varying vec4 textureCoords;
 
 		void main(void) {
 			vec4 src = texture2D(sourceBitmap, textureCoords.xy);
-			vec4 glow = texture2D(openfl_Texture, textureCoords.zw) * strength;
+			vec4 glow = texture2D(openfl_Texture, textureCoords.zw);
 
 			gl_FragColor = glow * src.a;
 		}
@@ -649,7 +644,6 @@ private class InnerCombineKnockoutShader extends BitmapFilterShader
 		super();
 		#if !macro
 		offset.value = [0, 0];
-		strength.value = [1];
 		#end
 	}
 }
