@@ -470,7 +470,7 @@ class Context3DGraphics
 	{
 		if (!graphics.__visible || graphics.__commands.length == 0) return;
 
-		if ((graphics.__bitmap != null && !graphics.__dirty) || !isCompatible(graphics))
+		if ((graphics.__bitmap != null && !graphics.__dirty) #if !hwgraphics || !isCompatible(graphics) #end)
 		{
 			// if (graphics.__quadBuffer != null || graphics.__triangleIndexBuffer != null) {
 
@@ -499,6 +499,16 @@ class Context3DGraphics
 		}
 		else
 		{
+			#if hwgraphics
+			if (!isCompatible(graphics))
+			{
+				openfl._internal.renderer.opengl.utils.GraphicsRenderer.render(graphics, renderer);
+				graphics.__hardwareDirty = false;
+				graphics.__dirty = false;
+				return;
+			}
+			#end
+
 			graphics.__bitmap = null;
 			graphics.__update(renderer.__worldTransform);
 
@@ -606,7 +616,7 @@ class Context3DGraphics
 									renderer.__setShaderBuffer(shaderBuffer);
 									renderer.applyMatrix(uMatrix);
 									renderer.applyBitmapData(bitmap, false /* ignored */, repeat);
-									renderer.applyAlpha(graphics.__owner.__worldAlpha);
+									renderer.applyAlpha(renderer.__getAlpha(graphics.__owner.__worldAlpha));
 									renderer.applyColorTransform(graphics.__owner.__worldColorTransform);
 									// renderer.__updateShaderBuffer ();
 								}
@@ -616,7 +626,7 @@ class Context3DGraphics
 									renderer.setShader(shader);
 									renderer.applyMatrix(uMatrix);
 									renderer.applyBitmapData(bitmap, smooth, repeat);
-									renderer.applyAlpha(graphics.__owner.__worldAlpha);
+									renderer.applyAlpha(renderer.__getAlpha(graphics.__owner.__worldAlpha));
 									renderer.applyColorTransform(graphics.__owner.__worldColorTransform);
 									renderer.updateShader();
 								}
@@ -678,7 +688,7 @@ class Context3DGraphics
 								renderer.applyMatrix(renderer.__getMatrix(matrix, AUTO));
 								renderer.applyBitmapData(blankBitmapData, true, repeat);
 								#if lime
-								renderer.applyAlpha((color.a / 0xFF) * graphics.__owner.__worldAlpha);
+								renderer.applyAlpha(renderer.__getAlpha((color.a / 0xFF) * graphics.__owner.__worldAlpha));
 								#end
 								renderer.applyColorTransform(tempColorTransform);
 								renderer.updateShader();
@@ -728,7 +738,7 @@ class Context3DGraphics
 								renderer.__setShaderBuffer(shaderBuffer);
 								renderer.applyMatrix(uMatrix);
 								renderer.applyBitmapData(bitmap, false, repeat);
-								renderer.applyAlpha(1);
+								renderer.applyAlpha(renderer.__getAlpha(1));
 								renderer.applyColorTransform(null);
 								renderer.__updateShaderBuffer(shaderBufferOffset);
 							}
@@ -738,7 +748,7 @@ class Context3DGraphics
 								renderer.setShader(shader);
 								renderer.applyMatrix(uMatrix);
 								renderer.applyBitmapData(bitmap, smooth, repeat);
-								renderer.applyAlpha(graphics.__owner.__worldAlpha);
+								renderer.applyAlpha(renderer.__getAlpha(graphics.__owner.__worldAlpha));
 								renderer.applyColorTransform(graphics.__owner.__worldColorTransform);
 								renderer.updateShader();
 							}

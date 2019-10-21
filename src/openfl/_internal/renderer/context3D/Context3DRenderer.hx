@@ -567,13 +567,18 @@ class Context3DRenderer extends Context3DRendererAPI
 		}
 	}
 
-	private function __getDisplayTransformTempMatrix(transform:Matrix, snapToPixel:Bool):Matrix
+	private function __getDisplayTransformTempMatrix(transform:Matrix, pixelSnapping:PixelSnapping):Matrix
 	{
 		var matrix = __getMatrixHelperMatrix;
 		matrix.copyFrom(transform);
 		// matrix.concat(__worldTransform);
 
-		if (snapToPixel)
+		if (pixelSnapping == ALWAYS
+			|| (pixelSnapping == AUTO
+				&& matrix.b == 0
+				&& matrix.c == 0
+				&& (matrix.a < 1.001 && matrix.a > 0.999)
+				&& (matrix.d < 1.001 && matrix.d > 0.999)))
 		{
 			matrix.tx = Math.round(matrix.tx);
 			matrix.ty = Math.round(matrix.ty);
@@ -1020,7 +1025,7 @@ class Context3DRenderer extends Context3DRendererAPI
 		setShader(shader);
 		applyBitmapData(bitmapData, __upscaled);
 		applyMatrix(__getMatrix(bitmapData.__worldTransform, AUTO));
-		applyAlpha(bitmapData.__worldAlpha);
+		applyAlpha(__getAlpha(bitmapData.__worldAlpha));
 		applyColorTransform(bitmapData.__worldColorTransform);
 		updateShader();
 
@@ -1059,6 +1064,12 @@ class Context3DRenderer extends Context3DRendererAPI
 					__renderTilemap(cast object);
 				case VIDEO:
 					__renderVideo(cast object);
+				#if draft
+				case GL_GRAPHICS:
+					openfl.display.HWGraphics.render(cast object, this);
+				case GEOMETRY:
+					openfl._internal.renderer.context3D.Context3DGeometry.render(cast object, this);
+				#end
 				default:
 			}
 
@@ -1157,7 +1168,7 @@ class Context3DRenderer extends Context3DRendererAPI
 
 		var shader = __initShader(shader);
 		setShader(shader);
-		applyAlpha(1);
+		applyAlpha(__getAlpha(1));
 		applyBitmapData(source, smooth);
 		applyColorTransform(null);
 		applyMatrix(__getMatrix(source.__renderTransform, AUTO));
