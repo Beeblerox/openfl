@@ -951,7 +951,7 @@ class BitmapData implements IBitmapDrawable
 		_colorTransform.__copyFrom(source.__worldColorTransform);
 		_colorTransform.__invert();
 
-		if (!readable && __hardwareRenderer != null && getTexture(__hardwareRenderer.context3D) != null)
+		if (/*!readable && */__hardwareRenderer != null && getTexture(__hardwareRenderer.context3D) != null)
 		{
 			if (colorTransform != null)
 			{
@@ -965,12 +965,9 @@ class BitmapData implements IBitmapDrawable
 			__hardwareRenderer.__worldAlpha = 1 / source.__worldAlpha;
 			__hardwareRenderer.__worldColorTransform = _colorTransform;
 
-			__hardwareRenderer.__resize(width, height);
-
 			__hardwareRenderer.__drawBitmapData(this, source, clipRect);
-			
-			// TODO (Zaphod): uncomment it???
-			/*var context = __hardwareRenderer.context3D;
+
+			var context = __hardwareRenderer.context3D;
 			var texture = __texture;
 			context.setRenderToTexture(texture, true);
 			var s =  context.__state;
@@ -978,8 +975,7 @@ class BitmapData implements IBitmapDrawable
 			context.__bindGLFramebuffer(framebuffer);
 			context.gl.readPixels(0, 0, width, height, texture.__format, context.gl.UNSIGNED_BYTE, this.image.data);
 			context.__bindGLFramebuffer(null);
-			context.setRenderToBackBuffer();*/
-			// TODO (Zaphod): end of todo
+			context.setRenderToBackBuffer();
 		}
 		else
 		{
@@ -2328,7 +2324,7 @@ class BitmapData implements IBitmapDrawable
 		if (__texture == null || __textureContext != context.__context)
 		{
 			__textureContext = context.__context;
-			__texture = context.createRectangleTexture(width, height, BGRA, false);
+			__texture = context.createRectangleTexture(__textureWidth, __textureHeight, BGRA, false);
 
 			// context.__bindGLTexture2D (__texture);
 			// gl.texParameteri (gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
