@@ -138,7 +138,6 @@ class BatchRenderer
 	{
 		var terminateBatch:Bool = __batch.numQuads >= __maxQuads || __batch.blendMode != blendMode;
 		#if (disable_batcher || openfl_disable_batcher)
-		trace("disable_batcher");
 		terminateBatch = true;
 		#end
 		if (terminateBatch)
