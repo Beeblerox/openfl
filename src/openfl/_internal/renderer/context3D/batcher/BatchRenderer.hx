@@ -138,6 +138,7 @@ class BatchRenderer
 	{
 		var terminateBatch:Bool = __batch.numQuads >= __maxQuads || __batch.blendMode != blendMode;
 		#if (disable_batcher || openfl_disable_batcher)
+		trace("disable_batcher");
 		terminateBatch = true;
 		#end
 		if (terminateBatch)
@@ -181,7 +182,6 @@ class BatchRenderer
 
 		var context = renderer.context3D;
 
-		context.__flushGL();
 		context.setCulling(NONE);
 		renderer.__setBlendMode(__batch.blendMode);
 
