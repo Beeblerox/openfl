@@ -971,8 +971,8 @@ class Context3DRenderer extends Context3DRendererAPI
 			var cacheMask = object.__mask;
 			var cacheScrollRect = object.__scrollRect;
 			// TODO (Zaphod): comment it out???
-			object.__mask = null;
-			object.__scrollRect = null;
+			//object.__mask = null;
+			//object.__scrollRect = null;
 			// TODO (Zaphod): end of todo
 
 			if (object != null)
