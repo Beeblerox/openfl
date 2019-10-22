@@ -137,6 +137,9 @@ class BatchRenderer
 	public function pushQuad(bitmapData:BitmapData, blendMode:BlendMode, alpha:Float, colorTransform:ColorTransform = null)
 	{
 		var terminateBatch:Bool = __batch.numQuads >= __maxQuads || __batch.blendMode != blendMode;
+		#if (disable_batcher || openfl_disable_batcher)
+		terminateBatch = true;
+		#end
 		if (terminateBatch)
 		{
 			flush();
@@ -178,8 +181,8 @@ class BatchRenderer
 
 		var context = renderer.context3D;
 
+		context.__flushGL();
 		context.setCulling(NONE);
-	//	context.setScissorRectangle(null);
 		renderer.__setBlendMode(__batch.blendMode);
 
 		context.__bindGLArrayBuffer(__vertexBuffer.__id);
