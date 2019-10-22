@@ -992,6 +992,8 @@ class Context3DRenderer extends Context3DRendererAPI
 
 			object.__mask = cacheMask;
 			object.__scrollRect = cacheScrollRect;
+
+			context3D.setScissorRectangle(null);
 		}
 
 		context3D.present();
