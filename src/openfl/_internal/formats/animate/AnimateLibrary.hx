@@ -1,7 +1,6 @@
 package openfl._internal.formats.animate;
 
 import haxe.Json;
-import openfl._internal.formats.swf.FilterType;
 import openfl._internal.formats.swf.ShapeCommand;
 import openfl.display.MovieClip;
 import openfl.events.Event;
@@ -356,17 +355,6 @@ import openfl.utils.AssetManifest;
 	{
 		if (alpha != null)
 		{
-			if (!image.transparent)
-			{
-				#if flash
-				var copy = new Image(0, 0, image.width, image.height);
-				copy.copyPixels(image, image.rect, new Vector2());
-				image.buffer = copy.buffer;
-				#else
-				image.transparent = true;
-				#end
-			}
-
 			image.copyChannel(alpha, alpha.rect, new Vector2(), ImageChannel.RED, ImageChannel.ALPHA);
 		}
 
@@ -457,38 +445,6 @@ import openfl.utils.AssetManifest;
 		symbol.width = __pixel(data.rect[2]);
 		symbol.height = __pixel(data.rect[3]);
 		return symbol;
-	}
-
-	private function __parseFilters(filters:Array<Array<Dynamic>>):Array<FilterType>
-	{
-		if (filters == null) return null;
-
-		var result = [];
-
-		for (filter in filters)
-		{
-			if (filter == null || filter.length == 0) continue;
-
-			switch (filter[0])
-			{
-				case 0:
-					result.push(FilterType.BlurFilter(filter[1], filter[2], filter[3]));
-
-				case 1:
-					result.push(FilterType.ColorMatrixFilter(filter[1]));
-
-				case 2:
-					result.push(FilterType.DropShadowFilter(filter[1], filter[2], filter[3], filter[4], filter[5], filter[6], filter[7], filter[8], filter[9],
-						filter[10], filter[11]));
-
-				case 3:
-					result.push(FilterType.GlowFilter(filter[1], filter[2], filter[3], filter[4], filter[5], filter[6], filter[7], filter[8]));
-
-				default:
-			}
-		}
-
-		return result;
 	}
 
 	private function __parseFont(data:Dynamic):AnimateFontSymbol
@@ -615,8 +571,6 @@ import openfl.utils.AssetManifest;
 
 	private function __parseSprite(data:Dynamic):AnimateSpriteSymbol
 	{
-		if (data == null) return null;
-
 		var symbol = new AnimateSpriteSymbol();
 		symbol.id = data.id;
 		symbol.className = data.className;
@@ -632,10 +586,7 @@ import openfl.utils.AssetManifest;
 			frame = new AnimateFrame();
 			frame.label = frameData.label;
 			// frame.script = frameData.script;
-			if (Reflect.hasField(frameData, "scriptSource"))
-			{
-				frame.scriptSource = frameData.scriptSource;
-			}
+			// frame.scriptSource = frameData.scriptSource;
 			objects = frameData.objects;
 			if (objects != null && objects.length > 0)
 			{
@@ -651,7 +602,7 @@ import openfl.utils.AssetManifest;
 						__pixel(objectData.colorTransform[4]), __pixel(objectData.colorTransform[5]), __pixel(objectData.colorTransform[6]),
 						__pixel(objectData.colorTransform[7])) : null;
 					object.depth = objectData.depth;
-					object.filters = __parseFilters(objectData.filters);
+					object.filters = objectData.filters;
 					object.id = objectData.id;
 					object.matrix = __parseMatrix(objectData.matrix);
 					object.name = objectData.name;
