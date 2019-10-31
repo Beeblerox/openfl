@@ -42,7 +42,17 @@ class CanvasBitmap
 			}
 			else
 			{
-				context.drawImage(bitmap.__bitmapData.image.src, scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
+				// TODO (Zaphod): push this code to github!!!!
+				context.save();
+
+				context.beginPath();
+				context.rect(scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
+				context.clip();
+
+				context.drawImage(bitmap.__bitmapData.image.src, 0, 0, bitmap.__bitmapData.image.width, bitmap.__bitmapData.image.height);
+
+				context.restore();
+				// end of TODO
 			}
 
 			if (!renderer.__allowSmoothing || !bitmap.smoothing)
