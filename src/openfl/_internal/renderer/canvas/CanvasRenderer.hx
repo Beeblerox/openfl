@@ -96,7 +96,9 @@ class CanvasRenderer extends CanvasRendererAPI
 			context.setTransform(1, 0, 0, 1, 0, 0);
 			context.globalAlpha = 1;
 
-			if (!__stage.__transparent && __stage.__clearBeforeRender)
+			// TODO (Zaphod): since our game always paints the whole game area, 
+			// then we don't need to do this fill...
+			/*if (!__stage.__transparent && __stage.__clearBeforeRender)
 			{
 				context.fillStyle = __stage.__colorString;
 				context.fillRect(0, 0, __stage.stageWidth * __stage.window.scale, __stage.stageHeight * __stage.window.scale);
@@ -104,7 +106,7 @@ class CanvasRenderer extends CanvasRendererAPI
 			else if (__stage.__transparent && __stage.__clearBeforeRender)
 			{
 				context.clearRect(0, 0, __stage.stageWidth * __stage.window.scale, __stage.stageHeight * __stage.window.scale);
-			}
+			}*/
 
 			__setBlendMode(cacheBlendMode);
 		}
