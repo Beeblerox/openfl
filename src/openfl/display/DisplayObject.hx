@@ -201,6 +201,8 @@ class DisplayObject extends EventDispatcher implements IBitmapDrawable #if (open
 	**/
 	// @:noCompletion @:dox(hide) public var accessibilityProperties:openfl.accessibility.AccessibilityProperties;
 	#end
+	
+	@:noCompletion public var __renderMask:Bool = true;
 
 	/**
 		Indicates the alpha transparency value of the object specified. Valid

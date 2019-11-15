@@ -744,7 +744,7 @@ class Context3DRenderer extends Context3DRendererAPI
 
 	private function __popMaskObject(object:DisplayObject, handleScrollRect:Bool = true):Void
 	{
-		if (object.__mask != null)
+		if (object.__mask != null && object.__renderMask)
 		{
 			__popMask();
 		}
@@ -835,7 +835,7 @@ class Context3DRenderer extends Context3DRendererAPI
 			}
 		}
 
-		if (object.__mask != null)
+		if (object.__mask != null && object.__renderMask)
 		{
 			__pushMask(object.__mask);
 		}
