@@ -164,17 +164,49 @@ class Bitmap extends DisplayObject
 			{
 				return false;
 			}
+			
+			// Zaphod changes begin...
+			
+			if (hitTransparentPixels)
+			{
+				if (stack != null && !interactiveOnly)
+				{
+					stack.push(hitObject);
+				}
+				
+				return true;
+			}
+			else
+			{
+				var pixel = __bitmapData.getPixel32(Std.int(px), Std.int(py));
+				var pixelAlpha:Int = (pixel >> 24) & 0xFF;
+				
+				if (pixelAlpha >= hitAlphaThreshold)
+				{
+					if (stack != null && !interactiveOnly)
+					{
+						stack.push(hitObject);
+					}
+				
+					return true;
+				}
+			}
 
-			if (stack != null && !interactiveOnly)
+			/*if (stack != null && !interactiveOnly)
 			{
 				stack.push(hitObject);
-			}
+			}*/
+
+			// Zaphod changes end...
 
 			return true;
 		}
 
 		return false;
 	}
+	
+	public var hitTransparentPixels:Bool = true;
+	public var hitAlphaThreshold:Int = 50;
 
 	@:noCompletion private override function __hitTestMask(x:Float, y:Float):Bool
 	{
@@ -187,7 +219,16 @@ class Bitmap extends DisplayObject
 
 		if (px > 0 && py > 0 && px <= __bitmapData.width && py <= __bitmapData.height)
 		{
-			return true;
+			if (hitTransparentPixels)
+			{
+				return true;
+			}
+			else
+			{
+				var pixel = __bitmapData.getPixel32(Std.int(px), Std.int(py));
+				var pixelAlpha:Int = (pixel >> 24) & 0xFF;
+				return (pixelAlpha >= hitAlphaThreshold);
+			}
 		}
 
 		return false;
