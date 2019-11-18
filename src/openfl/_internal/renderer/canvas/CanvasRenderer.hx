@@ -164,7 +164,7 @@ class CanvasRenderer extends CanvasRendererAPI
 
 	private function __popMaskObject(object:DisplayObject, handleScrollRect:Bool = true):Void
 	{
-		if (!object.__isCacheBitmapRender && object.__mask != null && object.__mask.__renderMask)
+		if (!object.__isCacheBitmapRender && object.__mask != null && object.__renderMask)
 		{
 			__popMask();
 		}
@@ -200,7 +200,7 @@ class CanvasRenderer extends CanvasRendererAPI
 			__pushMaskRect(object.__scrollRect, object.__renderTransform);
 		}
 
-		if (!object.__isCacheBitmapRender && object.__mask != null && object.__mask.__renderMask)
+		if (!object.__isCacheBitmapRender && object.__mask != null && object.__renderMask)
 		{
 			__pushMask(object.__mask);
 		}
