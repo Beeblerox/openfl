@@ -179,7 +179,13 @@ class Context3DTilemap
 		var matrix = Matrix.__pool.get();
 		var parentTransform = tilemap.__renderTransform;
 
-		buildBufferTileContainer(tilemap, tilemap.__group, renderer, parentTransform, tilemap.__tileset, tilemap.tileAlphaEnabled, tilemap.__worldAlpha,
+		var worldAlpha = tilemap.__worldAlpha;
+		if (tilemap.filters != null && tilemap.filters.length > 0)
+		{
+			worldAlpha = 1.0;
+		}
+
+		buildBufferTileContainer(tilemap, tilemap.__group, renderer, parentTransform, tilemap.__tileset, tilemap.tileAlphaEnabled, worldAlpha,
 			tilemap.tileColorTransformEnabled, tilemap.__worldColorTransform, null, rect, matrix);
 
 		Rectangle.__pool.release(rect);
