@@ -47,8 +47,10 @@ class CanvasTextField
 
 		if (textField.__dirty || graphics.__softwareDirty)
 		{
-			var width = Math.ceil(textField.width);
-			var height = Math.ceil(textField.height);
+			//var width = Math.ceil(textField.width);
+			//var height = Math.ceil(textField.height);
+			var width = graphics.__width;	
+			var height = graphics.__height;
 
 			if (((textEngine.text == null || textEngine.text == "")
 				&& !textEngine.background
@@ -336,9 +338,9 @@ class CanvasTextField
 
 						context.beginPath();
 						context.strokeStyle = "#" + StringTools.hex(textField.defaultTextFormat.color & 0xFFFFFF, 6);
-						context.moveTo(scrollX + offsetX + 2.5, scrollY + 2.5);
+						context.moveTo(scrollX + /*offsetX +*/ 2.5, scrollY + 2.5);
 						context.lineWidth = 1;
-						context.lineTo(scrollX + offsetX + 2.5, scrollY + TextEngine.getFormatHeight(textField.defaultTextFormat) - 1);
+						context.lineTo(scrollX + /*offsetX +*/ 2.5, scrollY + TextEngine.getFormatHeight(textField.defaultTextFormat) - 1);
 						context.stroke();
 						context.closePath();
 					}
