@@ -28,7 +28,7 @@ class CanvasTextField
 	{
 		#if (js && html5)
 		var textEngine = textField.__textEngine;
-		var bounds = (textEngine.background || textEngine.border) ? textEngine.bounds : textEngine.textBounds;
+		var bounds = (textEngine.background || textEngine.border || textEngine.type == INPUT) ? textEngine.bounds : textEngine.textBounds;
 		var graphics = textField.__graphics;
 
 		if (textField.__dirty)
@@ -47,9 +47,7 @@ class CanvasTextField
 
 		if (textField.__dirty || graphics.__softwareDirty)
 		{
-			//var width = Math.ceil(textField.width);
-			//var height = Math.ceil(textField.height);
-			var width = graphics.__width;	
+			var width = graphics.__width;
 			var height = graphics.__height;
 
 			if (((textEngine.text == null || textEngine.text == "")
@@ -81,7 +79,6 @@ class CanvasTextField
 				if (renderer.__domRenderer != null)
 				{
 					var scale = renderer.pixelRatio;
-
 					graphics.__canvas.width = Std.int(width * scale);
 					graphics.__canvas.height = Std.int(height * scale);
 					graphics.__canvas.style.width = width + "px";
@@ -338,9 +335,9 @@ class CanvasTextField
 
 						context.beginPath();
 						context.strokeStyle = "#" + StringTools.hex(textField.defaultTextFormat.color & 0xFFFFFF, 6);
-						context.moveTo(scrollX + /*offsetX +*/ 2.5, scrollY + 2.5);
+						context.moveTo(scrollX + offsetX + 2.5, scrollY + 2.5);
 						context.lineWidth = 1;
-						context.lineTo(scrollX + /*offsetX +*/ 2.5, scrollY + TextEngine.getFormatHeight(textField.defaultTextFormat) - 1);
+						context.lineTo(scrollX + offsetX + 2.5, scrollY + TextEngine.getFormatHeight(textField.defaultTextFormat) - 1);
 						context.stroke();
 						context.closePath();
 					}
