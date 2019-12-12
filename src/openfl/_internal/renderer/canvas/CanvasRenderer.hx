@@ -479,7 +479,8 @@ class CanvasRenderer extends CanvasRendererAPI
 
 	private function __renderTilemap(tilemap:Tilemap):Void
 	{
-		__updateCacheBitmap(tilemap, /*!__worldColorTransform.__isDefault ()*/ false);
+	//	__updateCacheBitmap(tilemap, /*!__worldColorTransform.__isDefault ()*/ false);
+		__updateCacheBitmap(tilemap, (tilemap.__renderDirty && tilemap.__filters != null));
 
 		if (tilemap.__cacheBitmap != null && !tilemap.__isCacheBitmapRender)
 		{
@@ -685,6 +686,11 @@ class CanvasRenderer extends CanvasRendererAPI
 						|| bitmapWidth > object.__cacheBitmapData.width
 						|| bitmapHeight > object.__cacheBitmapData.height)
 					{
+						if (object.__cacheBitmapData != null)
+						{
+							object.__cacheBitmapData.dispose();
+						}
+						
 						object.__cacheBitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, bitmapColor);
 
 						if (object.__cacheBitmap == null) object.__cacheBitmap = new Bitmap();

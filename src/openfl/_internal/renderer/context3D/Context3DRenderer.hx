@@ -1287,7 +1287,8 @@ class Context3DRenderer extends Context3DRendererAPI
 
 	private function __renderTilemap(tilemap:Tilemap):Void
 	{
-		__updateCacheBitmap(tilemap, false);
+		__updateCacheBitmap(tilemap, (tilemap.__renderDirty && tilemap.__filters != null));
+		//__updateCacheBitmap(tilemap, false);
 
 		if (tilemap.__cacheBitmap != null && !tilemap.__isCacheBitmapRender)
 		{
@@ -1608,6 +1609,11 @@ class Context3DRenderer extends Context3DRendererAPI
 						|| bitmapWidth > object.__cacheBitmapDataTexture.width
 						|| bitmapHeight > object.__cacheBitmapDataTexture.height)
 					{
+						if (object.__cacheBitmapDataTexture != null)
+						{
+							object.__cacheBitmapDataTexture.dispose();
+						}
+						
 						// TODO: Use pool for HW bitmap data
 						var texture = context3D.createRectangleTexture(bitmapWidth, bitmapHeight, BGRA, true);
 						object.__cacheBitmapDataTexture = BitmapData.fromTexture(texture);
