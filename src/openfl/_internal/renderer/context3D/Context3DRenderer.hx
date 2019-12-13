@@ -1639,6 +1639,12 @@ class Context3DRenderer extends Context3DRendererAPI
 
 					object.__cacheBitmap = null;
 					object.__cacheBitmapData = null;
+
+					if (object.__cacheBitmapDataTexture != null)
+					{
+						object.__cacheBitmapDataTexture.dispose();
+					}
+
 					object.__cacheBitmapDataTexture = null;
 
 					return true;
@@ -1853,7 +1859,11 @@ class Context3DRenderer extends Context3DRendererAPI
 		else if (object.__cacheBitmap != null)
 		{
 			object.__cacheBitmap = null;
-			object.__cacheBitmapDataTexture = null;
+			if (object.__cacheBitmapDataTexture != null)
+			{
+				object.__cacheBitmapDataTexture.dispose();
+				object.__cacheBitmapDataTexture = null;
+			}
 
 			updated = true;
 		}
