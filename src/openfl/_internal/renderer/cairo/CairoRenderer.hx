@@ -647,6 +647,12 @@ class CairoRenderer extends CairoRendererAPI
 						|| bitmapWidth > object.__cacheBitmapData.width
 						|| bitmapHeight > object.__cacheBitmapData.height)
 					{
+						if (object.__cacheBitmapData != null)
+						{
+							object.__cacheBitmapData.dispose();
+							object.__cacheBitmapData = null;
+						}
+						
 						object.__cacheBitmapData = new BitmapData(bitmapWidth, bitmapHeight, true, bitmapColor);
 
 						if (object.__cacheBitmap == null) object.__cacheBitmap = new Bitmap();
@@ -669,10 +675,23 @@ class CairoRenderer extends CairoRendererAPI
 					ColorTransform.__pool.release(colorTransform);
 
 					object.__cacheBitmap = null;
-					object.__cacheBitmapData = null;
-					object.__cacheBitmapData2 = null;
-					object.__cacheBitmapData3 = null;
 					object.__cacheBitmapRendererSW = null;
+					
+					if (object.__cacheBitmapData != null)
+					{
+						object.__cacheBitmapData.dispose();
+						object.__cacheBitmapData = null;
+					}
+					if (object.__cacheBitmapData2 != null)
+					{
+						object.__cacheBitmapData2.dispose();
+						object.__cacheBitmapData2 = null;
+					}
+					if (object.__cacheBitmapData3 != null)
+					{
+						object.__cacheBitmapData3.dispose();
+						object.__cacheBitmapData3 = null;
+					}
 
 					return true;
 				}
@@ -682,8 +701,16 @@ class CairoRenderer extends CairoRendererAPI
 				// Should we retain these longer?
 
 				object.__cacheBitmapData = object.__cacheBitmap.bitmapData;
-				object.__cacheBitmapData2 = null;
-				object.__cacheBitmapData3 = null;
+				if (object.__cacheBitmapData2 != null)
+				{
+					object.__cacheBitmapData2.dispose();
+					object.__cacheBitmapData2 = null;
+				}
+				if (object.__cacheBitmapData3 != null)
+				{
+					object.__cacheBitmapData3.dispose();
+					object.__cacheBitmapData3 = null;
+				}
 			}
 
 			if (updateTransform)
@@ -778,6 +805,12 @@ class CairoRenderer extends CairoRendererAPI
 							|| bitmapWidth > object.__cacheBitmapData2.width
 							|| bitmapHeight > object.__cacheBitmapData2.height)
 						{
+							if (object.__cacheBitmapData2 != null)
+							{
+								object.__cacheBitmapData2.dispose();
+								object.__cacheBitmapData2 = null;
+							}
+
 							object.__cacheBitmapData2 = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
 						}
 						else
@@ -798,6 +831,12 @@ class CairoRenderer extends CairoRendererAPI
 							|| bitmapWidth > object.__cacheBitmapData3.width
 							|| bitmapHeight > object.__cacheBitmapData3.height)
 						{
+							if (object.__cacheBitmapData3 != null)
+							{
+								object.__cacheBitmapData3.dispose();
+								object.__cacheBitmapData3 = null;
+							}
+
 							object.__cacheBitmapData3 = new BitmapData(bitmapWidth, bitmapHeight, true, 0);
 						}
 						else
@@ -873,11 +912,24 @@ class CairoRenderer extends CairoRendererAPI
 		else if (object.__cacheBitmap != null)
 		{
 			object.__cacheBitmap = null;
-			object.__cacheBitmapData = null;
-			object.__cacheBitmapData2 = null;
-			object.__cacheBitmapData3 = null;
-			object.__cacheBitmapColorTransform = null;
 			object.__cacheBitmapRendererSW = null;
+			object.__cacheBitmapColorTransform = null;
+
+			if (object.__cacheBitmapData != null)
+			{
+				object.__cacheBitmapData.dispose();
+				object.__cacheBitmapData = null;
+			}
+			if (object.__cacheBitmapData2 != null)
+			{
+				object.__cacheBitmapData2.dispose();
+				object.__cacheBitmapData2 = null;
+			}
+			if (object.__cacheBitmapData3 != null)
+			{
+				object.__cacheBitmapData3.dispose();
+				object.__cacheBitmapData3 = null;
+			}
 
 			updated = true;
 		}
