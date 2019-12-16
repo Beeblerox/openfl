@@ -1491,12 +1491,6 @@ class Context3DRenderer extends Context3DRendererAPI
 		}
 	}
 	
-	private var filterTextureWidth:Int = 0;
-	private var filterTextureHeight:Int = 0;
-	private var filterTexture1:BitmapData = null;
-	private var filterTexture2:BitmapData = null;
-	private var filterTexture3:BitmapData = null;
-
 	private function __updateCacheBitmap(object:DisplayObject, force:Bool):Bool
 	{
 		#if openfl_disable_cacheasbitmap
@@ -1733,48 +1727,9 @@ class Context3DRenderer extends Context3DRendererAPI
 					var cacheRenderer = BitmapData.__hardwareRenderer;
 					BitmapData.__hardwareRenderer = childRenderer;
 
-					if (filterTexture1 == null || filterTextureWidth < filterWidth || filterTextureHeight < filterHeight)
-					{
-						filterTextureWidth = filterWidth;
-						filterTextureHeight = filterHeight;
-						
-						if (filterTexture1 != null)
-						{
-							filterTexture1.dispose();
-							filterTexture1 = null;
-						}
-						
-						if (filterTexture2 != null)
-						{
-							filterTexture2.dispose();
-							filterTexture2 = null;
-						}
-						
-						if (filterTexture3 != null)
-						{
-							filterTexture3.dispose();
-							filterTexture3 = null;
-						}
-						
-						var texture = context3D.createRectangleTexture(filterTextureWidth, filterTextureHeight, BGRA, true);
-						filterTexture1 = BitmapData.fromTexture(texture);
-						texture = context3D.createRectangleTexture(filterTextureWidth, filterTextureHeight, BGRA, true);
-						filterTexture2 = BitmapData.fromTexture(texture);
-						
-						if (needCopyOfOriginal)
-						{
-							texture = context3D.createRectangleTexture(filterTextureWidth, filterTextureHeight, BGRA, true);
-							filterTexture3 = BitmapData.fromTexture(texture);
-						}
-					}
-					
-					/*var bitmap = context3D.__bitmapDataPool.get(filterWidth, filterHeight);
-					var bitmap2 = context3D.__bitmapDataPool.get(filterWidth, filterHeight);
-					var bitmap3 = needCopyOfOriginal ? context3D.__bitmapDataPool.get(filterWidth, filterHeight) : null;*/
-					
-					var bitmap = filterTexture1;
-					var bitmap2 = filterTexture2;
-					var bitmap3 = needCopyOfOriginal ? filterTexture3 : null;
+					var bitmap = context3D.__bitmapDataPool.get(filterWidth, filterHeight, true);
+					var bitmap2 = context3D.__bitmapDataPool.get(filterWidth, filterHeight, true);
+					var bitmap3 = needCopyOfOriginal ? context3D.__bitmapDataPool.get(filterWidth, filterHeight, true) : null;
 
 					bitmap.__setUVRect(context3D, 0, 0, filterWidth, filterHeight);
 					bitmap2.__setUVRect(context3D, 0, 0, filterWidth, filterHeight);
