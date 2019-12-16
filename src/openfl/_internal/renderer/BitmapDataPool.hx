@@ -45,11 +45,17 @@ class BitmapDataPool
 		}
 	}
 
-	public function get(width:Int, height:Int):BitmapData
+	public function get(width:Int, height:Int, powerOfTwo:Bool = false):BitmapData
 	{
 		#if openfl_power_of_two
 		width = __powerOfTwo(width);
 		height = __powerOfTwo(height);
+		#else
+		if (powerOfTwo)
+		{
+			width = __powerOfTwo(width);
+			height = __powerOfTwo(height);
+		}
 		#end
 
 		var heightMap = __bitmapData[width];
