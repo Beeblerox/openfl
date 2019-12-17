@@ -882,6 +882,9 @@ class CanvasRenderer extends CanvasRendererAPI
 							bitmap = bitmap2;
 							bitmap2 = cacheBitmap;
 						}
+						
+					//	bitmap.image.dirty = true;
+					//	bitmap.image.version++;
 					}
 
 					if (object.__cacheBitmapData != bitmap)
