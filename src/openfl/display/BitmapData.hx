@@ -133,7 +133,6 @@ class BitmapData implements IBitmapDrawable
 	@:noCompletion private static inline var VERTEX_BUFFER_STRIDE:Int = 14;
 	@:noCompletion private static var __hardwareRenderer:#if lime Context3DRenderer #else Dynamic #end;
 	@:noCompletion private static var __pool:BitmapDataPool = new BitmapDataPool();
-	@:noCompletion private static var __softwareRenderer:DisplayObjectRenderer;
 	@:noCompletion private static var __supportsBGRA:Null<Bool> = null;
 	@:noCompletion private static var __textureFormat:Int;
 	@:noCompletion private static var __textureInternalFormat:Int;
@@ -231,6 +230,8 @@ class BitmapData implements IBitmapDrawable
 	@:noCompletion private var __worldAlpha:Float;
 	@:noCompletion private var __worldColorTransform:ColorTransform;
 	@:noCompletion private var __worldTransform:Matrix;
+	
+	@:noCompletion private var __softwareRenderer:DisplayObjectRenderer;
 
 	/**
 		Creates a BitmapData object with a specified width and height. If you specify a value for
@@ -823,6 +824,8 @@ class BitmapData implements IBitmapDrawable
 
 		__texture = null;
 		__textureContext = null;
+
+		__softwareRenderer = null;
 	}
 
 	/**
