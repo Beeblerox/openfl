@@ -1889,7 +1889,7 @@ class DisplayObject extends EventDispatcher implements IBitmapDrawable #if (open
 	}
 
 	// Get & Set Methods
-	@:keep @:noCompletion private function get_alpha():Float
+	@:keep @:noCompletion private inline function get_alpha():Float
 	{
 		return __alpha;
 	}
@@ -2093,7 +2093,7 @@ class DisplayObject extends EventDispatcher implements IBitmapDrawable #if (open
 		return null;
 	}
 
-	@:keep @:noCompletion private function get_rotation():Float
+	@:keep @:noCompletion private inline function get_rotation():Float
 	{
 		return __rotation;
 	}
@@ -2148,7 +2148,7 @@ class DisplayObject extends EventDispatcher implements IBitmapDrawable #if (open
 		return value;
 	}
 
-	@:keep @:noCompletion private function get_scaleX():Float
+	@:keep @:noCompletion private inline function get_scaleX():Float
 	{
 		return __scaleX;
 	}
@@ -2182,7 +2182,7 @@ class DisplayObject extends EventDispatcher implements IBitmapDrawable #if (open
 		return value;
 	}
 
-	@:keep @:noCompletion private function get_scaleY():Float
+	@:keep @:noCompletion private inline function get_scaleY():Float
 	{
 		return __scaleY;
 	}
@@ -2298,7 +2298,7 @@ class DisplayObject extends EventDispatcher implements IBitmapDrawable #if (open
 		return __objectTransform;
 	}
 
-	@:noCompletion private function get_visible():Bool
+	@:noCompletion private inline function get_visible():Bool
 	{
 		return __visible;
 	}
