@@ -48,6 +48,7 @@ import openfl._internal.renderer.canvas.CanvasRenderer;
 #end
 #if (js && html5)
 import js.html.CanvasElement;
+import js.html.Uint8Array;
 #end
 
 /**
@@ -138,6 +139,10 @@ class BitmapData implements IBitmapDrawable
 	@:noCompletion private static var __textureInternalFormat:Int;
 	#if lime
 	@:noCompletion private static var __tempVector:Vector2 = new Vector2();
+	#end
+	
+	#if (lime && html5)
+	private static var pixelValues:Uint8Array = new Uint8Array(4);
 	#end
 
 	/**
@@ -2203,7 +2208,10 @@ class BitmapData implements IBitmapDrawable
 	**/
 	public function getPixel(x:Int, y:Int):Int
 	{
-		if (!readable) return 0;
+		if (!readable)
+		{
+			return getPixel32(x, y) & 0x00ffffff;
+		}
 		#if lime
 		return image.getPixel(x, y, ARGB32);
 		#else
@@ -2235,7 +2243,27 @@ class BitmapData implements IBitmapDrawable
 	**/
 	public function getPixel32(x:Int, y:Int):Int
 	{
-		if (!readable) return 0;
+		if (!readable) 
+		{
+			#if (lime && html5)
+			if (__hardwareRenderer != null && getTexture(__hardwareRenderer.context3D) != null)
+			{
+				var context = __hardwareRenderer.context3D;
+				var texture = __texture;
+				context.setRenderToTexture(texture, true);
+				var s =  context.__state;
+				var framebuffer = s.renderToTexture.__getGLFramebuffer(s.renderToTextureDepthStencil, s.renderToTextureAntiAlias, s.renderToTextureSurfaceSelector);
+				context.__bindGLFramebuffer(framebuffer);
+				context.gl.readPixels(x, y, 1, 1, texture.__format, context.gl.UNSIGNED_BYTE, pixelValues);
+				context.__bindGLFramebuffer(null);
+				context.setRenderToBackBuffer();
+				
+				return ((pixelValues[3] & 255) << 24) | ((pixelValues[0] & 255) << 16) | ((pixelValues[1] & 255) << 8) | (pixelValues[2] & 255);
+			}
+			#end
+			
+			return 0;
+		}
 		#if lime
 		return image.getPixel32(x, y, ARGB32);
 		#else
